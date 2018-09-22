@@ -1,0 +1,347 @@
+How to apache Configuration on ubuntu 14.04
+-------------------------------------------
+
+Server name :  ubuntu 14.04
+
+username : rambact
+password : asdfr
+
+My Apache Server ip : 192.168.122.194
+
+Install Apache
+--------------
+
+sudo apt-get install apache2
+
+Go to your browser type this it will open /var/www/html/index.html file (ex)-----> http://192.168.122.194       
+
+vi /etc/apache2/apache2.conf   ---> This is main configuration file in apache
+
+ls /var/www/html               ---> Default document root in apache
+
+ls /etc/apache2/sites-available/  ----> This is Virtual host configuration file location ( ex : example.yo.conf )
+
+ls /etc/apache2/sites-enabled/ ----> example.yo.conf file will be add automatically once i done this command ( sudo a2ensite example.yo.conf )
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+Let us we configure First virtual host 
+--------------------------------------
+
+I have added the following lines in my /etc/hosts file, please follow this
+
+192.168.122.194 ubuntu.yogesh.co.in gubuntu 
+192.168.122.194 www.example.yo example.yo
+
+192.168.122.194 ubuntu.yogesh.co.in gubuntu -> if i type ubuntu.yogesh.co.in or gubuntu in my browser it will open /var/www/html/index.html file 
+
+Now i am going to configure virtual host for this site --->  192.168.122.194 www.example.yo example.yo
+
+1) sudo mkdir /var/www/html/sample1virt
+
+2) sudo chown -R rambact:rambact /var/www/html/sample1virt   --> so my server user rambact can only edit this file ( In ubuntu, it does't require apache user so no pro )
+
+3) vim /var/www/html/sample1virt/index.html
+
+<!DOCTYPE html>
+<html>
+<body>
+<h1>My First Virtual host file</h1>
+<p>My first Virtual host from www.example.yo</p>
+</body>
+</html>
+
+4) sudo vim /etc/apache2/sites-available/example.yo.conf
+
+<VirtualHost *:80>
+ServerAdmin admin@example.yo
+ServerName example.yo
+ServerAlias www.example.yo
+DocumentRoot /var/www/html/sample1virt
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+5) sudo a2ensite example.yo.conf  --> This command will add your example.yo.conf file in /etc/apache2/sites-enabled/ location
+
+6) sudo service apache2 reload
+
+7) Go to ur browser then type www.example.yo or example.yo your virtual host html file will execute on web console
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+My Second Virtual Host file in /var/www/virt2/vmachine
+
+1) sudo mkdir -p /var/www/virt2/vmachine
+
+2) sudo chown -R rambact:rambact /var/www/virt2
+
+3) sudo vim /var/www/virt2/vmachine/index.html
+
+<html>
+<body bgcolor="red">
+<h1>Hello world!</h1>
+<p><a href="https://www.w3schools.com">Visit W3Schools.com!</a></p>
+</body>
+</html>
+
+4) sudo vim /etc/apache2/sites-available/virtualhost2.conf
+
+<VirtualHost *:80>
+    ServerAdmin rambact@test.yo
+    ServerName test.yo
+    ServerAlias www.test.yo
+    DocumentRoot /var/www/virt2/vmachine
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+~                
+
+5) sudo a2ensite virtualhost2.conf
+
+6) sudo service apache2 reload 
+
+7) Go to ur browser then type www.test.yo or test.yo your virtual host html file will execute on web console
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+How to Run Apache service with customized port  
+-----------------------------------------------
+
+I am going to change the port number for last virtual host /var/www/virt2/vmachine
+
+1) sudo vim /etc/apache2/ports.conf
+
+#Add this line 
+
+Listen 8010
+
+2) sudo vim /etc/apache2/sites-available/virtualhost2.conf
+
+<VirtualHost *:8010>
+    ServerAdmin rambact@test.yo
+    ServerName test.yo
+    ServerAlias www.test.yo
+    DocumentRoot /var/www/virt2/vmachine
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+3) sudo /etc/init.d/apache2 restart
+
+4) check your port has binded  ---->  netstat -tulpn | grep :80
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------
+How to restrict particular ip or particular network in Virtual Host
+-------------------------------------------------------------------
+
+1) sudo vim /etc/apache2/sites-available/virtualhost2.conf
+
+<VirtualHost *:8010>
+    ServerAdmin rambact@test.yo
+    ServerName test.yo
+    ServerAlias www.test.yo
+    DocumentRoot /var/www/virt2/vmachine
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+<Files "index.html">
+<RequireAll>
+    Require all granted
+    Require not ip 192.168.122.1   #Network 192.168.122.0/24
+</RequireAll>
+</Files>
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+Let us we configure Virtual host with different location.
+--------------------------------------------------------
+sudo vim /etc/hosts
+
+192.168.122.194 www.docroot.yo docroot.yo
+
+
+1) sudo mkdir -p /test/demo-docroot
+
+2) sudo vim /test/demo-docroot/index.html
+
+<html>
+<body bgcolor="blue">
+<h1>Hello world!</h1>
+<p><a href="https://www.w3schools.com">Visit W3Schools.com!</a></p>
+</body>
+</html>
+
+3) sudo vim /etc/apache2/sites-available/demo-docroot.conf
+
+<VirtualHost *:80>
+        ServerAdmin rambact@docroot.yo
+       DocumentRoot /test/demo-docroot
+       ServerName docroot.yo
+       ServerAlias www.docroot.yo
+       <Directory /test/demo-docroot>
+       Options Indexes FollowSymLinks MultiViews
+       AllowOverride None
+       Require all granted
+       </Directory>
+</VirtualHost>
+
+4) sudo a2ensite demo-docroot.conf
+
+5) sudo apachectl configtest     -->  Test your configuration using this command
+
+6) Check it on your browser      --> http://www.docroot.yo  
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+Let us we change yog.html file instead of index.html 
+----------------------------------------------------
+i am going to check in default document root directory ie) /var/www/html
+
+1) sudo rm -rf /var/www/html/yog.html
+
+2) vim /var/www/html/yog.html
+
+<html>
+<body bgcolor="yellow">
+<h1>Hello world!</h1>
+<p><a href="https://www.w3schools.com">Visit W3Schools.com!</a></p>
+</body>
+</html>
+
+3) sudo vim /etc/apache2/mods-enabled/dir.conf
+
+Add yog.html end of the line
+
+4) sudo service apache2 reload
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+Let us we discuss about how to install and hosting php file in apache 
+---------------------------------------------------------------------
+
+1) sudo apt-get install php5 
+
+2) sudo rm -rf /var/www/html/yog.html
+
+3) sudo vim /var/www/html/index.php
+
+<?php phpinfo(); ?>
+
+4) sudo a2enmod php5   --> a2enmod is a script that enables the specified module within the apache2 configuration.
+                           ls /etc/apache2/mods-enabled/   --> here you can see 2 php files once you enable php5 
+
+5) sudo service apache2 reload
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Let us we discuss about how to configure ssl in apache
+------------------------------------------------------
+
+1) vim /etc/hosts
+
+192.168.122.194 www.secureserver.yo secureserver.yo
+
+2) sudo rm -rf /var/www/html/index.php
+
+3) sudo vim /var/www/html/index.html
+
+<html>
+<body bgcolor="pink">
+<h1>Hello world!</h1>
+<p><a href="https://www.w3schools.com">Visit W3Schools.com!</a></p>
+</body>
+</html>
+
+4) sudo a2enmod ssl
+
+5) sudo service apache2 restart
+
+6) sudo mkdir /etc/apache2/ssl
+
+7) sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
+
+Country Name (2 letter code) [AU]:IN
+State or Province Name (full name) [Some-State]:Karnataka
+Locality Name (eg, city) []:Bangalore
+Organization Name (eg, company) [Internet Widgits Pty Ltd]:Fcoos Technologies Pvt Ltd
+Organizational Unit Name (eg, section) []:Linux Admin
+Common Name (e.g. server FQDN or YOUR name) []:www.secureserver.yo
+Email Address []:yogesh.aseervatham@tarams.com
+
+8) sudo /etc/apache2/sites-available/secureserver.conf
+
+
+    <VirtualHost _default_:443>
+        ServerAdmin rambact@secureserver.yo
+        ServerName secureserver.yo
+        ServerAlias www.secureserver.yo
+        DocumentRoot /var/www/html
+        ErrorLog ${APACHE_LOG_DIR}/error.log
+        CustomLog ${APACHE_LOG_DIR}/access.log combined
+        SSLEngine on
+        SSLCertificateFile /etc/apache2/ssl/apache.crt
+        SSLCertificateKeyFile /etc/apache2/ssl/apache.key
+        </VirtualHost>
+
+9) sudo a2ensite secureserver.conf
+
+10) sudo service apache2 reload
+
+11) open your browser  https://www.secureserver.yo
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Let us we discuss about how to Enable Basic Authentication to limit access on specific web pages
+------------------------------------------------------------------------------------------------
+
+1) sudo apt-get -y install apache2-utils
+
+2) sudo vi /etc/apache2/sites-available/auth-basic.conf
+
+<Directory /var/www/html>
+    AuthType Basic
+    AuthName "Basic Authentication"
+    AuthUserFile /etc/apache2/.htpasswd
+    require valid-user
+</Directory>
+
+
+3) sudo htpasswd -c /etc/apache2/.htpasswd  rambact 
+
+asdfr   ---> password anything your wish
+asdfr
+
+4) sudo a2ensite auth-basic
+
+5) sudo service apache2 reload
+
+6) now refresh your page it will authenticate you
+------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+Redirection
+-----------
+
+<VirtualHost *:80>
+ServerAdmin yogeshredhat14@gmail.com
+ServerName 123exampleyog.com
+ServerAlias www.123exampleyog.com
+Redirect / https://123exampleyog.com/
+DocumentRoot /var/www/sample
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+
+
+RewriteEngine on
+SSLCertificateFile /etc/apache2/ssl/apache.crt
+SSLCertificateKeyFile /etc/apache2/ssl/apache.key
+</VirtualHost>
+
+
+
+
+
+
