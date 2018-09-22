@@ -1,0 +1,25 @@
+<VirtualHost *:80>
+ServerAdmin  yogeshredhat14@gmail.com
+ServerName svn.tarams.com
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^/?(.*) https://%{SERVER_NAME}/ [R,L]
+</VirtualHost>
+
+<VirtualHost *:443>
+     ServerAdmin yogeshredhat14@gmail.com
+     ServerName svn.tarams.com
+     ServerAlias svn.tarams.com
+     DocumentRoot /var/www/html
+     ErrorLog /var/log/test_error.log
+     CustomLog /var/log/test_access.log combined
+SSLEngine on
+SSLProtocol all -SSLv2
+SSLCipherSuite ALL:!ADH:!EXPORT:!SSLv2:!RC4+RSA:+HIGH:+MEDIUM:!LOW:!RC4
+SSLCertificateFile /etc/pki/tls/certs/server.crt
+SSLCertificateKeyFile /etc/pki/tls/certs/server.key
+</VirtualHost>
+
+~                                                                                                                                    
+~                                                                                                                                    
+~                     
