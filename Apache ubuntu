@@ -23,6 +23,15 @@ ls /etc/apache2/sites-available/  ----> This is Virtual host configuration file 
 
 ls /etc/apache2/sites-enabled/ ----> example.yo.conf file will be add automatically once i done this command ( sudo a2ensite example.yo.conf )
 
+<VirtualHost *:80>
+    ServerAdmin webmaster@test2.com
+    ServerName test2.com
+    ServerAlias www.test2.com
+    DocumentRoot /var/www/test2.com/public_html
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
 -----------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
