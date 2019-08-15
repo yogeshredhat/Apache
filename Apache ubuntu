@@ -371,24 +371,37 @@ asdfr
 
 Redirection
 -----------
+sudo a2enmod rewrite
+sudo a2enmod ssl
+sudo a2ensite default-ssl
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/apache2/ssl/apache.key -out /etc/apache2/ssl/apache.crt
 
 <VirtualHost *:80>
-ServerAdmin yogeshredhat14@gmail.com
-ServerName 123exampleyog.com
-ServerAlias www.123exampleyog.com
-Redirect / https://123exampleyog.com/
-DocumentRoot /var/www/sample
-ErrorLog ${APACHE_LOG_DIR}/error.log
-CustomLog ${APACHE_LOG_DIR}/access.log combined
+ServerName www.yogssl.tech
+ServerAlias yogssl.tech
+Redirect permanent / https://yogssl.tech
+</VirtualHost>
 
-
-RewriteEngine on
+<VirtualHost *:443>
+ServerName www.yossl.tech
+ServerAlias yogssl.tech
+DocumentRoot /var/www/html/yogssltech
+SSLEngine On
 SSLCertificateFile /etc/apache2/ssl/apache.crt
 SSLCertificateKeyFile /etc/apache2/ssl/apache.key
 </VirtualHost>
 
+systemctl restart apache2
 
-
+openssl: This is the basic command line tool for creating and managing OpenSSL certificates, keys, and other files.
+req: This subcommand specifies that we want to use X.509 certificate signing request (CSR) management. The "X.509" is a public key infrastructure standard that SSL and TLS adheres to for its key and certificate management. We want to create a new X.509 cert, so we are using this subcommand.
+-x509: This further modifies the previous subcommand by telling the utility that we want to make a self-signed certificate instead of generating a certificate signing request, as would normally happen.
+-nodes: This tells OpenSSL to skip the option to secure our certificate with a passphrase. We need Apache to be able to read the file, without user intervention, when the server starts up. A passphrase would prevent this from happening because we would have to enter it after every restart.
+-days 365: This option sets the length of time that the certificate will be considered valid. We set it for one year here.
+-newkey rsa:2048: This specifies that we want to generate a new certificate and a new key at the same time. We did not create the key that is required to sign the certificate in a previous step, so we need to create it along with the certificate. The rsa:2048 portion tells it to make an RSA key that is 2048 bits long.
+-keyout: This line tells OpenSSL where to place the generated private key file that we are creating.
+-out: This tells OpenSSL where to place the certificate that we are creating.
 
 
 
