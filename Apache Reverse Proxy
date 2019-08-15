@@ -1,0 +1,33 @@
+mkdir /var/www/html/yogtech/
+vim /var/www/html/yogtech/index.html
+ <!DOCTYPE html>
+<html>
+<body>
+<h1 style="background-color:DodgerBlue;">Hello World</h1>
+<p style="background-color:Tomato;">
+"/var/run/utmp: It contains information about the users who are currently logged onto the system. Who command is used to fetch the information from the file.
+/var/log/wtmp: It contains historical utmp. It keeps the users login and logout history. The last command uses this file to display the information.
+/var/log/btmp: It contains bad login attempts."
+</p>
+</body>
+</html>
+
+vim /etc/apache2/sites-available/01-yogtech.conf
+<VirtualHost *:80>
+ServerAdmin yog@yy.tech
+ServerName www.yog.tech
+ServerAlias yog.tech
+DocumentRoot /var/www/html/yogtech
+ProxyPreserveHost on
+ProxyPass /yogtech http://13.235.227.194:1985
+ProxyPassReverse /yogtech http://13.235.227.194:1985
+</VirtualHost>
+
+vim /etc/apache2/ports.conf
+Listen 1985
+Listen 80
+
+sudo a2enmod proxy
+sudo a2enmod proxy_http
+
+systemctl restart apache2
