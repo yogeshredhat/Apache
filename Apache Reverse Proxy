@@ -31,3 +31,14 @@ sudo a2enmod proxy
 sudo a2enmod proxy_http
 
 systemctl restart apache2
+
+ProxyPreserveHost - This code makes the Apache virtual host pass the Host Header to the back-end server so that the back-end server can be aware of the address used to access the application
+
+ProxyPass - This line tells the Apache to pass the request which is coming under root to the specified backend server address.
+
+If you are trying to access the /example, then the apache server will forward the request http://backend_server/example and return the response to the client.
+
+ProxyPassReverse - Both ProxyPassReverse and ProxyOass should have the same configuration. The ProxyPassReverse makes the Apache server to change the header from the back end server response.
+
+If your back-end server returns the location redirect header, the client will get the proxy address not the back end server address.
+
